@@ -5,15 +5,28 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.auth_demo.entity.AppUser;
 import com.example.auth_demo.repository.UserRepository;
 
 @Service
-public class AppUserDetailsService {
+public class AppUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        }
 
     public List<AppUser> getAllUsers() {
         return userRepository.findAll();
@@ -39,6 +52,11 @@ public class AppUserDetailsService {
             Optional<AppUser> existingUser = userRepository.findOne(example);
             return existingUser.get();
         } else {
+            String rawPassword = user.getPassword();
+            String encodedPassword = passwordEncoder.encode(rawPassword);
+
+            user.setPassword(encodedPassword);
+
             AppUser newUser = userRepository.save(user);
             return newUser;
         }
