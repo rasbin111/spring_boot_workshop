@@ -8,12 +8,12 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
-@Getter
 @Entity
+@Getter
+@Setter
 @Table(name = "app_users")
 public class AppUser {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -24,6 +24,5 @@ public class AppUser {
     private String email;
     private String gender;
     private String password;
-
 
 }
